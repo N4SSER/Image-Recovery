@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/n4ssser/Image-Recovery/Image Recovery/Gen.h
+
+/home/n4ssser/Image-Recovery/Image Recovery/Solution.h
+vector
+-
+Gen.h
+/home/n4ssser/Image-Recovery/Image Recovery/Gen.h
+
+/home/n4ssser/Image-Recovery/Image Recovery/main.cpp
+iostream
+-
+Solution.h
+/home/n4ssser/Image-Recovery/Image Recovery/Solution.h
+list
+-
+
