@@ -1,9 +1,7 @@
 #include <iostream>
 #include "Solution.h"
-#include <list>
 using namespace std;
-list<vector<Gen>> nPop;
-vector<vector<Gen>> population;
+vector<Solution> population;
 float fitness_func(vector<Gen> sol,int l,vector<Gen> ref){
     float fit = 0;
     for(int i =0; i<l;i++){
@@ -15,34 +13,41 @@ void initPopulation(int lP,int lS){
     for (int i = 0; i<lP;i++){
         Solution s(lS);
         s.create();
-        population.push_back(s.getSolution());
+        population.push_back(s);
     }
 }
 
-vector<Gen> crossover(vector<Gen> parent1,vector<Gen> parent2){
-    int crossPoint = parent1.size()/2 ;
-    vector<Gen> offspring;
+Solution crossover(vector<Gen> parent1,vector<Gen> parent2,const int crossPoint){
+    Solution offspring(parent2.size());
     int cross=crossPoint;
     for(int i = 0; i<parent1.size();i++){
-        if (i==cross){
-            for(int c = i; c<crossPoint+i;c++){
-                offspring.push_back(parent2[i]);
+        if(i==cross){
+            while (i!= cross+crossPoint){
+                if(i>parent1.size()){
+                    break;
+                }
+                offspring.crossGen(parent2[i]);
+                i++;
             }
-            cross+=crossPoint;
-            i+=crossPoint;
+            i--;
+            cross+=2*crossPoint;
         }
         else{
-            offspring.push_back(parent1[i]);
+            offspring.crossGen(parent1[i]);
         }
     }
     return offspring;
 }
+void mutate(){
+    int mValue;
+    for(auto& i : population){
+        srandom((unsigned int)time(nullptr));
+        mValue = random()%1000;
+        if(mValue==1){
+            i.getSolution()[random() %i.getSolution().size()] = Gen(random()%255,random()%255,random()%255);
+        }
+    }
+}
 int main() {
-    //initPopulation(10000,10000);
-    //Solution ref(10000);
-    //ref.create();
-    //for(auto & i : population){
-   //     cout<<fitness_func(i, i.size(),ref.getSolution())<<endl;
-   // }
     return 0;
 }

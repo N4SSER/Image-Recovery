@@ -6,7 +6,17 @@
 
 #IncludeRegexTransform: 
 
+/home/n4ssser/Image-Recovery/Image Recovery/Gen.cpp
+Gen.h
 /home/n4ssser/Image-Recovery/Image Recovery/Gen.h
+
+/home/n4ssser/Image-Recovery/Image Recovery/Gen.h
+
+/home/n4ssser/Image-Recovery/Image Recovery/Solution.cpp
+iostream
+-
+Solution.h
+/home/n4ssser/Image-Recovery/Image Recovery/Solution.h
 
 /home/n4ssser/Image-Recovery/Image Recovery/Solution.h
 vector
@@ -19,6 +29,4 @@ iostream
 -
 Solution.h
 /home/n4ssser/Image-Recovery/Image Recovery/Solution.h
-list
--
 
