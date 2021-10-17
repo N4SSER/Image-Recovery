@@ -1,23 +1,17 @@
-//
-// Created by n4ssser on 9/10/21.
-//
+#pragma once
 #include <vector>
 #include "Gen.h"
-#ifndef IMAGE_RECOVERY_SOLUTION_H
-#define IMAGE_RECOVERY_SOLUTION_H
-
-
 class Solution {
 private:
     std::vector<Gen> solution;
 public:
-    int lenght;
+    int length;
     Gen getGen(int i);
     explicit Solution(int lenght);
     void create();
     void crossGen(Gen g);
-    std::vector <Gen> getSolution();
+    void addGen(float r, float g, float b);
+    std::vector <Gen> individual();
 };
 
 
-#endif //IMAGE_RECOVERY_SOLUTION_H

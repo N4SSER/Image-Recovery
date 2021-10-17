@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/Image_Recovery.dir/main.cpp.o CMakeFiles/Image_Recovery.dir/Gen.cpp.o CMakeFiles/Image_Recovery.dir/Solution.cpp.o -o Image_Recovery 
