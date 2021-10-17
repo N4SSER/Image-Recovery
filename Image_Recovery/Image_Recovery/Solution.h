@@ -1,17 +1,18 @@
 #pragma once
 #include <vector>
-#include "Gen.h"
+#include <opencv2/highgui/highgui.hpp>
+using namespace cv;
 class Solution {
 private:
-    std::vector<Gen> solution;
+    Mat solution;
 public:
     int length;
-    Gen getGen(int i);
-    explicit Solution(int lenght);
+    Vec3b getGen(int i, int j);
+    Solution(int i, int j);
     void create();
-    void crossGen(Gen g);
+    void crossGen(Vec3b gen);
     void addGen(float r, float g, float b);
-    std::vector <Gen> individual();
+    Mat individual();
 };
 
 

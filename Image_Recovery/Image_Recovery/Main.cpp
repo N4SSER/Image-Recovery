@@ -1,50 +1,62 @@
 
 #include <opencv2/highgui/highgui.hpp>
 #include "iostream"
+#include "Solution.h"
 using namespace cv;
 using namespace std;
-#include "Solution.h"
-#include "Gen.h"
-using namespace std;
 vector<Solution> population;
-float fitness_func(vector<Gen> sol, int l, vector<Gen> ref)
+float fitness_func(Mat sol, Mat ref)
 {
     float fit = 0;
-    for (int i = 0; i < l;i++)
+    for (int i = 0; i < sol.rows;i++)
     {
-        fit += (abs(sol[i].r - ref[i].r) / static_cast<float>(255) + abs(sol[i].g - ref[i].g) / static_cast<float>(255) + abs(sol[i].b - ref[i].b) / static_cast<float>(255)) / static_cast<float>(3);
+        for (int j = 0; j < sol.cols;j++) 
+        {
+            Vec3b sGen = sol.at<Vec3b>(i, j);
+            Vec3b rGen = ref.at<Vec3b>(i, j);
+            fit += (abs(sGen[2] - rGen[2]) / static_cast<float>(255) + abs(sGen[1] - rGen[1]) / static_cast<float>(255) + abs(sGen[0] - rGen[0]) / static_cast<float>(255)) / static_cast<float>(3);
+            
+        }
+       
     }
+    cout<<fit<<endl;
     return fit;
    
 }
-void initPopulation(int lenPopulation, int lenIndividual)
+void initPopulation(int lenPopulation, int i, int j)
 {
-    for (int i = 0; i < lenPopulation;i++) {
-        Solution s(lenIndividual);
+    for (int c = 0; c < lenPopulation;c++) {
+        Solution s(i,j);
         s.create();
         population.push_back(s);
     }
 }
 
-Solution crossover(vector<Gen> parent1, vector<Gen> parent2, const int crossPoint)
+Solution crossover(Solution parent1, Solution parent2, const int crossPoint)
 {
-    Solution offspring(parent2.size());
+    Solution offspring(parent1);
+    Vec3b val;
     int cross = crossPoint;
-    for (int i = 0; i < parent1.size();i++) {
-        if (i == cross) {
-            while (i != cross + crossPoint) {
-                if (i > parent1.size()) {
-                    break;
+    for (int i = 0; i < parent1.individual().rows;i++)
+    {
+        for (int j = 0; j < parent1.individual().cols; j++)
+        {
+            if (i == cross) {
+                while (i != cross + crossPoint) {
+                    if (i > parent1.individual().rows * parent1.individual().cols) {
+                        break;
+                    }
+                    offspring.crossGen(parent2.getGen(i, j));
+                    i++;
                 }
-                offspring.crossGen(parent2[i]);
-                i++;
+                i--;
+                cross += 2 * crossPoint;
             }
-            i--;
-            cross += 2 * crossPoint;
+            else {
+                offspring.crossGen(parent2.getGen(i, j));
+            }
         }
-        else {
-            offspring.crossGen(parent1[i]);
-        }
+       
     }
     return offspring;
 }
@@ -54,57 +66,43 @@ void mutate()
     for (auto& i : population) {
         mValue = rand() % 1000;
         if (mValue == 1) {
-            i.individual()[rand() % i.individual().size()] = Gen(rand() % 255, rand() % 255, rand() % 255);
+            Vec3b val(rand() % 255, rand() % 255, rand() % 255);
+            i.getGen(rand() % i.individual().rows, rand() % i.individual().cols) = val;
         }
     }
 }
-void test(vector<Solution> populaton , vector<Gen> ref ) 
+void test(vector<Solution> populaton , Mat ref ) 
 {
     for(auto& p : population)
     {
-    
-        cout << fitness_func(p.individual(), p.length, ref) << endl;
+        fitness_func(p.individual(), ref);
     }
 
 }
 int main() 
 {
-    srand(time(NULL));
-    Mat img = imread("patt3.jpg");
-    initPopulation(10,img.rows*img.cols);
-    Solution ref(img.rows * img.cols);
-    for (int i = 0; i < img.rows; i++)
-    {
-        for (int j = 0; j < img.cols; j++)
-        {
-            int b = img.at<Vec3b>(i, j)[0];
-            int g = img.at<Vec3b>(i, j)[1];
-            int r = img.at<Vec3b>(i, j)[2];
-            ref.addGen(r, g, b);
-           
-            
-        }
-    }
+   srand(time(NULL));
+   Mat ref = imread("lena.jpg");
 
-    Mat image(img.rows, img.cols, CV_8UC3,
-        Scalar(255, 255, 255));
+   Mat sol(ref.rows, ref.cols, CV_8UC3,
+   Scalar(255, 255, 255));
    Vec3b value;
-   Solution s(img.rows * img.cols);
+   Solution s(ref.rows, ref.cols);
    s.create();
-   vector<Gen> ss =population[9].individual();
-    for (int row = 0; row < image.rows; row++) {
-        for (int col = 0; col < image.cols; col++) {
-            value = image.at<Vec3b>(row, col);
-            value[0]=ref.individual()[row+col].b;
-            value[1] = ref.individual()[row + col].g;
-            value[2] = ref.individual()[row + col].r;
-            image.at<Vec3b>(row, col) = value;
+    for (int row = 0; row < sol.rows; row++) {//Write image
+        for (int col = 0; col < sol.cols/3; col++) {
+            value = ref.at<Vec3b>(row, col);
+            value[0] = rand()%255;
+            value[1] = rand() % 255;
+            value[2] = rand() % 255;
+            ref.at<Vec3b>(row, col) = value;
         }
     }
 
-    imshow("TEST", image);
+    imshow("TEST", ref);
+    initPopulation(10, ref.rows, ref.cols);
+    test(population, ref);
     waitKey(0);
-    test(population, ref.individual());
    
 	return 0;
 }
