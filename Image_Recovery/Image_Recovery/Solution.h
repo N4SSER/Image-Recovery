@@ -12,6 +12,7 @@ public:
     void create();
     void crossGen(Vec3b gen);
     void addGen(float r, float g, float b);
+    void setSolution(Mat s);
     Mat individual();
 };
 
