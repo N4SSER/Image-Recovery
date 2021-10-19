@@ -32,32 +32,18 @@ void initPopulation(int lenPopulation, int i, int j)
     }
 }
 
-Solution crossover(Solution parent1, Solution parent2, const int crossPoint)
+Solution crossover(Solution parent1, Solution parent2, double crossPoint)
 {
-    Solution offspring(parent1);
-    Vec3b val;
-    int cross = crossPoint;
-    for (int i = 0; i < parent1.individual().rows;i++)
-    {
-        for (int j = 0; j < parent1.individual().cols; j++)
-        {
-            if (i == cross) {
-                while (i != cross + crossPoint) {
-                    if (i > parent1.individual().rows * parent1.individual().cols) {
-                        break;
-                    }
-                    offspring.crossGen(parent2.getGen(i, j));
-                    i++;
-                }
-                i--;
-                cross += 2 * crossPoint;
-            }
-            else {
-                offspring.crossGen(parent2.getGen(i, j));
-            }
-        }
-       
-    }
+    Solution offspring(parent1.individual().rows, parent1.individual().cols);
+   
+    double alpha = crossPoint; 
+    double beta;
+    Mat src1, src2, dst;
+    src1 = parent1.individual();
+    src2 = parent2.individual();
+    beta = (1.0 - alpha);
+    addWeighted(src1, alpha, src2, beta, 0.0, dst);
+    offspring.setSolution(dst);
     return offspring;
 }
 void mutate() 
@@ -89,8 +75,14 @@ int main()
    Vec3b value;
    Solution s(ref.rows, ref.cols);
    s.create();
+   Solution s1(ref.rows, ref.cols);
+   s1.setSolution(ref);
+   imshow("OFFSPRING",crossover(s, s1,  0.5).individual());
+  
+  
+
     for (int row = 0; row < sol.rows; row++) {//Write image
-        for (int col = 0; col < sol.cols/3; col++) {
+        for (int col = 0; col < sol.cols/2; col++) {
             value = ref.at<Vec3b>(row, col);
             value[0] = rand()%255;
             value[1] = rand() % 255;
