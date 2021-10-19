@@ -38,6 +38,11 @@ void Solution::addGen(float r, float g, float b)
     solution.push_back(gen);
 }
 
+void Solution::setSolution(Mat s)
+{
+    solution = s;
+}
+
 Mat Solution::individual()
 {
     return solution;
