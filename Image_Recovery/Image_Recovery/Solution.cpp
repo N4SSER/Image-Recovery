@@ -21,21 +21,24 @@ void Solution::create()
         }
     }
 }
-
-Vec3b Solution::getGen(int i,int j)
+void Solution::mutate()
 {
-    return solution.at<Vec3b>(i, j);
+    int mrate = rand() % 10;
+    for (int i = 0; i < solution.rows; i++)
+    {
+        for (int j = 0; j < solution.cols; j++)
+        {
+            if (rand() % 10 < mrate)
+                solution.at<Vec3b>(i,j)[2] = rand() % 256;
+                solution.at<Vec3b>(i,j)[1] = rand() % 256;
+                solution.at<Vec3b>(i,j)[0] = rand() % 256;
+        }
+    }
 }
 
 void Solution::crossGen(Vec3b g)
 {
     solution.push_back(g);
-}
-
-void Solution::addGen(float r, float g, float b)
-{
-    Vec3b gen(r, g, b);
-    solution.push_back(gen);
 }
 
 void Solution::setSolution(Mat s)

@@ -5,13 +5,16 @@ using namespace cv;
 class Solution {
 private:
     Mat solution;
+
 public:
+
+    float fit;
+
     int length;
-    Vec3b getGen(int i, int j);
     Solution(int i, int j);
     void create();
+    void mutate();
     void crossGen(Vec3b gen);
-    void addGen(float r, float g, float b);
     void setSolution(Mat s);
     Mat individual();
 };
