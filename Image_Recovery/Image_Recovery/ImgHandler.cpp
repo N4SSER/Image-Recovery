@@ -1,10 +1,9 @@
 #include "ImgHandler.h"
-#include <iostream>
 
-Rect ImgHandler::cut_ref(int x, int y, int width, int heigth)
+Mat ImgHandler::cut_ref(Mat m, int x, int y, int width, int heigth)
 {
-	Rect croppedimg = Rect(x, y, width, heigth);
-	return croppedimg;
+	Rect ROI(x, y, width, heigth);
+	return m(ROI);
 }
 
 Mat ImgHandler::place(Mat m1, Mat m2, int x, int y)
@@ -14,7 +13,7 @@ Mat ImgHandler::place(Mat m1, Mat m2, int x, int y)
 	{
 		for (int j = y;j < m2.cols + y;j++)
 		{
-			m1.at<uchar>(i, j) = m2.at<uchar>(i-x, j-y);
+			m1.at<Vec3b>(i, j) = m2.at<Vec3b>(i-x, j-y);
 		}
 
 	}
@@ -27,9 +26,9 @@ Mat ImgHandler::erase(Mat m, int w, int h, int x, int y)
 	{
 		for (int j = y;j< h+y ;j++) 
 		{
-		
-			m.at<uchar>(i, j) = 255;
-			
+			m.at<Vec3b>(i, j)[0] = 255;
+			m.at<Vec3b>(i, j)[1] = 255;
+			m.at<Vec3b>(i, j)[2] = 255;	
 		}
 		
 	}
