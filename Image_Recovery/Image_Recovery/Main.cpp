@@ -1,100 +1,195 @@
 
-#include <opencv2/highgui/highgui.hpp>
-#include "iostream"
-#include "Solution.h"
+#include <opencv2/opencv.hpp>
+#include <iostream> 
+#include "ImgHandler.h"
+int rows, cols;
+int population_len;
+int mat_len;
+int mutation_rate = 2;
+int indx;
+bool found = false;
+uchar** target;
+uchar*** genes, *** n_genes;
+int* mat_pool;
+
 using namespace cv;
 using namespace std;
-vector<Solution> population;
-float fitness_func(Mat sol, Mat ref)
+
+struct Individual
 {
-    float fit = 0;
-    for (int i = 0; i < sol.rows;i++)
+public:
+    float fit;
+    int rows, cols;
+    int index;
+
+    void fitness_func()
     {
-        for (int j = 0; j < sol.cols;j++) 
+        int cnt = 0;
+        for (int i = 0; i < rows; i++)
         {
-            Vec3b sGen = sol.at<Vec3b>(i, j);
-            Vec3b rGen = ref.at<Vec3b>(i, j);
-            fit += (abs(sGen[2] - rGen[2]) / static_cast<float>(255) + abs(sGen[1] - rGen[1]) / static_cast<float>(255) + abs(sGen[0] - rGen[0]) / static_cast<float>(255)) / static_cast<float>(3);
-            
+            for (int j = 0; j < cols; j++)
+            {
+                if (genes[index][i][j] == target[i][j])
+                    cnt++;
+            }
         }
-       
+        fit = 1000 * cnt / (rows * cols);
+        fit = (fit * fit) / 1000;
     }
-    cout<<fit<<endl;
-    return fit;
-   
-}
-void initPopulation(int lenPopulation, int i, int j)
-{
-    for (int c = 0; c < lenPopulation;c++) {
-        Solution s(i,j);
-        s.create();
-        population.push_back(s);
-    }
-}
 
-Solution crossover(Solution parent1, Solution parent2, double crossPoint)
-{
-    Solution offspring(parent1.individual().rows, parent1.individual().cols);
-   
-    double alpha = crossPoint; 
-    double beta;
-    Mat src1, src2, dst;
-    src1 = parent1.individual();
-    src2 = parent2.individual();
-    beta = (1.0 - alpha);
-    addWeighted(src1, alpha, src2, beta, 0.0, dst);
-    offspring.setSolution(dst);
-    return offspring;
-}
-void mutate() 
-{
-    int mValue;
-    for (auto& i : population) {
-        mValue = rand() % 1000;
-        if (mValue == 1) {
-            Vec3b val(rand() % 255, rand() % 255, rand() % 255);
-            i.getGen(rand() % i.individual().rows, rand() % i.individual().cols) = val;
-        }
-    }
-}
-void test(vector<Solution> populaton , Mat ref ) 
-{
-    for(auto& p : population)
+    void init(int rw, int cl)
     {
-        fitness_func(p.individual(), ref);
+        rows = rw;
+        cols = cl;
+        index = indx;
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++)
+                genes[indx][i][j] = rand() % 256;
+        indx++;
     }
 
-}
-int main() 
-{
-   srand(time(NULL));
-   Mat ref = imread("lena.jpg");
+    Mat individual(Mat img)
+    {
+        for (int i = 0; i < img.rows; i++)
+        {
+   
+            for (int j = 0; j < img.cols; j++)
+            {
+                img.at<uchar>(i,j) = genes[index][i][j];
+            }
+        }
+        return img;
+    }
 
-   Mat sol(ref.rows, ref.cols, CV_8UC3,
-   Scalar(255, 255, 255));
-   Vec3b value;
-   Solution s(ref.rows, ref.cols);
-   s.create();
-   Solution s1(ref.rows, ref.cols);
-   s1.setSolution(ref);
-   imshow("OFFSPRING",crossover(s, s1,  0.5).individual());
-  
-  
-
-    for (int row = 0; row < sol.rows; row++) {//Write image
-        for (int col = 0; col < sol.cols/2; col++) {
-            value = ref.at<Vec3b>(row, col);
-            value[0] = rand()%255;
-            value[1] = rand() % 255;
-            value[2] = rand() % 255;
-            ref.at<Vec3b>(row, col) = value;
+    void mutate()
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                if (rand() % 100 < mutation_rate)
+                    n_genes[index][i][j] = rand() % 256;
+            }
         }
     }
+};
+Individual* population;
+bool s_rule(Individual a, Individual b)
+{
+    return a.fit > b.fit;
+}
 
-    imshow("TEST", ref);
-    initPopulation(10, ref.rows, ref.cols);
-    test(population, ref);
-    waitKey(0);
+void crossover(int place, Individual parent_1, Individual parent_2)
+{
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            if ((genes[parent_1.index][i][j] == target[i][j]) || (genes[parent_2.index][i][j] == target[i][j]))
+            {
+                if (rand() % 10 == 0)
+                    n_genes[place][i][j] = target[i][j];
+                else
+                    goto branch;
+            }
+            else
+            {
+            branch:
+                if (rand() % 2 == 0)
+                    n_genes[place][i][j] = genes[parent_1.index][i][j];
+                else
+                    n_genes[place][i][j] = genes[parent_2.index][i][j];
+            }
+        }
+    }
+}
+int main(){
    
-	return 0;
+    srand(time(NULL));
+    ImgHandler imgh;
+    Mat ref;
+    int x, y;
+    Mat mat_cut = imgh.erase(imread("pattern.jpg", 0),100,100,0,0);
+    Mat best;
+    ref = imread("pattern.jpg",0); //El trozo recortado
+    best = ref;
+    rows = ref.rows;
+    cols = ref.cols;
+    namedWindow("Best individual of the generation ",WINDOW_AUTOSIZE);
+    target = new uchar * [rows];
+    for (int i = 0; i < rows; i++)
+    {
+        target[i] = new uchar[cols];
+    }
+    for (int i = 0; i < rows; i++)
+    {
+        uchar* lin = ref.ptr(i);
+        for (int j = 0; j < cols; j++)
+        {
+            target[i][j] = (uchar)lin[j];
+        }
+    }
+    cin >> population_len;
+    mat_pool = new int[population_len * (population_len + 1) / 2];
+
+    genes = new uchar * *[population_len + 10];
+    n_genes = new uchar * *[population_len + 10];
+    for (int i = 0; i < population_len + 10; i++)
+    {
+        genes[i] = new uchar * [rows];
+        n_genes[i] = new uchar * [rows];
+        for (int j = 0; j < rows; j++)
+        {
+            genes[i][j] = new uchar[cols];
+            n_genes[i][j] = new uchar[cols];
+        }         
+    }   
+    population = new Individual[population_len];
+    for (int i = 0; i < population_len; i++)
+    {
+        population[i].init(rows, cols);
+        population[i].fitness_func();
+    }
+    int generations=0;
+    while (true)
+    {
+        generations++;
+        for (int i = 0; i < population_len; i++) {
+            population[i].fitness_func();
+       }
+        sort(population, population + population_len, s_rule);
+        cout << population[0].fit << endl;
+        if (population[0].fit > 999)
+        {
+            cout << generations << endl;
+            break;
+        }
+  
+        imshow("Best individual of the generation ", imgh.place(mat_cut, population[0].individual(best), 0, 0));
+        waitKey(1);
+        
+
+        mat_len = 0;
+     
+        for (int i = 0; i < population_len; i++)
+        {
+            for (int j = 0; j < population_len - i; j++)
+            {
+                mat_pool[mat_len] = i;
+                mat_len += 1;
+            }
+        }
+        for (int i = 0; i < population_len; i++)
+        {
+            int a = rand() % mat_len, b = rand() % mat_len;
+            crossover(i, population[mat_pool[a]], population[mat_pool[b]]);
+
+        }
+        for (int i = 0; i < population_len; i++)
+            population[i].mutate();
+        swap(genes, n_genes);
+    }
+    delete n_genes;
+    delete genes;
+    return 0;
 }
