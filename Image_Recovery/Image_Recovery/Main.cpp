@@ -1,4 +1,5 @@
 
+
 #include <opencv2/opencv.hpp>
 #include <iostream> 
 #include "ImgHandler.h"
@@ -11,6 +12,11 @@ bool found = false;
 Vec3b** target;
 Vec3b*** genes, *** n_genes;
 int* mat_pool;
+
+#include <opencv2/highgui/highgui.hpp>
+#include "iostream"
+#include "Solution.h"
+#include "Refimg.h"
 
 using namespace cv;
 using namespace std;
@@ -159,6 +165,7 @@ int main(){
     cin >> population_len;
     mat_pool = new int[population_len * (population_len + 1) / 2];
 
+
     genes = new Vec3b * *[population_len + 10];
     n_genes = new Vec3b * *[population_len + 10];
     for (int i = 0; i < population_len + 10; i++)
@@ -196,6 +203,25 @@ int main(){
         waitKey(1);
         
 
+}
+int main() 
+{
+   srand(time(NULL));
+   Mat ref = imread("lena.jpg");
+   Mat imgtest1 = imread("patt.jpg");
+   Refimg imagenref;
+   Mat sol(ref.rows, ref.cols, CV_8UC3,
+   Scalar(255, 255, 255));
+   Vec3b value;
+   Solution s(ref.rows, ref.cols);
+   s.create();
+   Solution s1(ref.rows, ref.cols);
+   s1.setSolution(ref);
+   imshow("OFFSPRING",crossover(s, s1,  0.5).individual());
+
+   Mat croppedimg = imgtest1(imagenref.CutRef(275, 292, 161, 125));
+
+
         mat_len = 0;
      
         for (int i = 0; i < population_len; i++)
@@ -211,6 +237,7 @@ int main(){
             int a = rand() % mat_len, b = rand() % mat_len;
             crossover(i, population[mat_pool[a]], population[mat_pool[b]]);
 
+
         }
         for (int i = 0; i < population_len; i++)
             population[i].mutate();
@@ -219,4 +246,13 @@ int main(){
     delete n_genes;
     delete genes;
     return 0;
+
+    imshow("TEST", ref);
+    imshow("Recorte", croppedimg);
+    imshow("TestofImg", imgtest1);
+    initPopulation(10, ref.rows, ref.cols);
+    test(population, ref);
+    waitKey(0);
+   
+	return 0;
 }

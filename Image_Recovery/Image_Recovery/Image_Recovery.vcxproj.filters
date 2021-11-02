@@ -21,9 +21,15 @@
     <ClCompile Include="ImgHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Refimg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ImgHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Refimg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
