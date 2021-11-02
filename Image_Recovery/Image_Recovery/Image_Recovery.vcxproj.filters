@@ -18,7 +18,7 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Solution.cpp">
+    <ClCompile Include="ImgHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Refimg.cpp">
@@ -26,7 +26,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Solution.h">
+    <ClInclude Include="ImgHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Refimg.h">
