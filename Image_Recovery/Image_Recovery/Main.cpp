@@ -1,8 +1,17 @@
 
+/**
+ * @file Main.cpp
+ * @version 1.0
+ * @authors Brown Aparicio Nasser Santiago, Ramos Madrigal Jose Pablo
+ * @title Funcion main 
+ * @brief Contiene la funcion main 
+ * @date 11/3/2021
+ */
 #include <opencv2/opencv.hpp>
-#include <iostream> 
+#include <iostream>
 #include "ImgHandler.h"
 int rows, cols;
+int c_x, c_y;
 int population_len;
 int mat_len;
 int mutation_rate = 2;
@@ -14,14 +23,21 @@ int* mat_pool;
 
 using namespace cv;
 using namespace std;
-
+/** @struct Individual
+ *  @brief Esta es una estructura que posee las caracterisiticas de los individuos ademas posee diversas funcionalidades
+ * @authors  Brown Aparicio Nasser Santiago, Ramos Madrigal Jose Pablo
+ */
 struct Individual
 {
 public:
     float fit;
     int rows, cols;
     int index;
-
+    /** 
+ * @brief Este metodo contiene la funcionalidad de encontrar el fitness de cada individuo.
+ * @authors  Brown Aparicio Nasser Santiago, Ramos Madrigal Jose Pablo
+ *
+ */
     void fitness_func()
     {
         int cnt = 0;
@@ -36,7 +52,11 @@ public:
         fit = 1000 * cnt / (rows * cols);
         fit = (fit * fit) / 1000;
     }
-
+    /**
+* @brief Este metodo hace un init de los genes es decir coloca aleatoriamente los genes de cada individuo 
+* @authors  Brown Aparicio Nasser Santiago, Ramos Madrigal Jose Pablo
+*
+*/
     void init(int rw, int cl)
     {
         rows = rw;
@@ -52,7 +72,12 @@ public:
                 
         indx++;
     }
-
+    /**
+* @brief Este metodo posee la informacion matricial de los individuos para que OpenCV puede interpretar estos 
+* individuo como colores de los pixeles de la imagen
+* @authors  Brown Aparicio Nasser Santiago, Ramos Madrigal Jose Pablo
+*
+*/
     Mat individual(Mat img)
     {
         Mat m=img;
@@ -68,7 +93,11 @@ public:
         }
         return m;
     }
-
+    /**
+* @brief Este metodo hace la mutaciones de los genes, este posee metodo posee una baja posibilidad 
+* @authors  Brown Aparicio Nasser Santiago, Ramos Madrigal Jose Pablo
+*
+*/
     void mutate()
     {
         for (int i = 0; i < rows; i++)
@@ -84,11 +113,21 @@ public:
     }
 };
 Individual* population;
+/**
+* @brief Metodo que determina si un individuo tiene un mayor fitness que otro
+* @authors Brown Aparicio Nasser Santiago, Ramos Madrigal Jose Pablo
+*
+*/
 bool s_rule(Individual a, Individual b)
 {
     return a.fit > b.fit;
 }
 
+/**
+* @brief Metodo que contiene la logica de crossover que se hace entre los individuos
+* @authors Brown Aparicio Nasser Santiago, Ramos Madrigal Jose Pablo
+*
+*/
 void crossover(int place, Individual parent_1, Individual parent_2)
 {
     for (int i = 0; i < rows; i++)
@@ -135,13 +174,22 @@ int main(){
     srand(time(NULL));
     ImgHandler imgh;
     Mat ref;
-    Mat cref = imgh.erase(imread("pattern.jpg"), 120, 120, 0, 0);
+    cout << "Enter the path of the image: ";
+    string path;
+    cin >> path;
+    cout << "Enter the x axis of the point to cut on the image : ";
+    cin >> c_x;
+    cout << "Enter the y axis of the point to cut  on the image : ";
+    cin >> c_y;
+    Mat img = imgh.erase(imread(path), 120, 120, c_x, c_y); 
+    imshow("Best individual of the generation", img);
+    waitKey(0);
     Mat best;
-    ref = imread("patt2.jpg"); //El trozo recortado
+    ref = imgh.cut_ref(imread(path), c_x-120, c_y+120, 120, 120);
     best = ref;
     rows = ref.rows;
     cols = ref.cols;
-    namedWindow("Best individual of the generation ",WINDOW_AUTOSIZE);
+    namedWindow("Best individual of the generation",WINDOW_AUTOSIZE);
     target = new Vec3b * [rows];
     for (int i = 0; i < rows; i++)
     {
@@ -156,7 +204,7 @@ int main(){
             target[i][j][2] = ref.at<Vec3b>(i, j)[2];
         }
     }
-    cin >> population_len;
+    population_len=130;
     mat_pool = new int[population_len * (population_len + 1) / 2];
 
     genes = new Vec3b * *[population_len + 10];
@@ -192,7 +240,7 @@ int main(){
             break;
         }
   
-        imshow("Best individual of the generation ",  imgh.place(cref,population[0].individual(best),0,0));
+        imshow("Best individual of the generation",  imgh.place(img,population[0].individual(best),c_x,c_y));
         waitKey(1);
         
 
