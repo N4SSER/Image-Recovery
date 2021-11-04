@@ -172,6 +172,7 @@ void crossover(int place, Individual parent_1, Individual parent_2)
 int main(){
    
     srand(time(NULL));
+    int l = 100;
     ImgHandler imgh;
     Mat ref;
     cout << "Enter the path of the image: ";
@@ -181,11 +182,11 @@ int main(){
     cin >> c_x;
     cout << "Enter the y axis of the point to cut  on the image : ";
     cin >> c_y;
-    Mat img = imgh.erase(imread(path), 120, 120, c_x, c_y); 
+    Mat img = imgh.erase(imread(path), l, l, c_x, c_y); 
     imshow("Best individual of the generation", img);
     waitKey(0);
     Mat best;
-    ref = imgh.cut_ref(imread(path), c_x-120, c_y+120, 120, 120);
+    ref = imgh.cut_ref(imread(path), c_x-l, c_y+l, l, l);
     best = ref;
     rows = ref.rows;
     cols = ref.cols;
@@ -234,7 +235,7 @@ int main(){
        }
         sort(population, population + population_len, s_rule);
         cout << population[0].fit << endl;
-        if (population[0].fit > 999)
+        if (population[0].fit > 3000)
         {
             cout << generations << endl;
             break;
